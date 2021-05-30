@@ -1,16 +1,32 @@
 import React, { useGlobal } from "reactn";
+import { Flex, useColorMode } from "@chakra-ui/react";
 
 const Messages = () => {
   const [messages, setMessages] = useGlobal("messages");
+  const { colorMode, toggleColorMode } = useColorMode();
+
   return (
-    <div>
+    <Flex
+      flexDirection="column"
+      padding="2"
+      h="512px"
+      maxHeight="512px"
+      maxW="260px"
+      overflow="auto"
+    >
       {messages.map((e, idx) => (
         <div key={idx}>
-          <h1>{e.username}</h1>
-          <h1>{e.message}</h1>
+          <p>
+            <span
+              style={{ color: colorMode === "dark" ? "lightblue" : "blue" }}
+            >
+              {e.username}:
+            </span>{" "}
+            {e.message}
+          </p>
         </div>
       ))}
-    </div>
+    </Flex>
   );
 };
 

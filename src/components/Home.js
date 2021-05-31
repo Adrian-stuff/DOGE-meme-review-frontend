@@ -1,4 +1,5 @@
 import { useHistory } from "react-router-dom";
+import { io } from "socket.io-client";
 import React, { useGlobal, useState } from "reactn";
 import {
   Input,
@@ -6,22 +7,44 @@ import {
   Box,
   Alert,
   AlertIcon,
+  AlertDialog,
   Container,
   Center,
   Flex,
   Heading,
   Image,
   useColorMode,
+  AlertDialogOverlay,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogBody,
 } from "@chakra-ui/react";
 import DarkModeButton from "./DarkModeButton";
+import Rooms from "./Rooms";
+import { useEffect } from "react";
 const Home = () => {
   const [roomID, setRoomID] = useGlobal("roomID");
   const [username, setUsername] = useGlobal("username");
+  const [socket, setSocket] = useState(null);
+  const [rooms, setRooms] = useGlobal("rooms");
   const [alertUser, setAlertUser] = useState(false);
+  const [alertDialogUser, setAlertDialogUser] = useState(false);
+
   const [alertRoom, setAlertRoom] = useState(false);
-  const { colorMode, toggleColorMode } = useColorMode();
+  const [isAlertOpen, setIsAlertOpen] = useState(username ? false : true);
+  const { colorMode } = useColorMode();
+
   const history = useHistory();
 
+  const cancelRef = React.useRef();
+  function handleUsernameSubmit(e) {
+    e.preventDefault();
+    let user = username.replace(/\s/g, "");
+    if (username === undefined || user === "") return setAlertDialogUser(true);
+    localStorage.setItem("username", user);
+    setIsAlertOpen(false);
+  }
   function handleSubmit(e) {
     e.preventDefault();
     let user = username.replace(/\s/g, "");
@@ -32,8 +55,70 @@ const Home = () => {
     localStorage.setItem("username", user);
     history.push(`/rooms/${room}`);
   }
+  useEffect(() => {
+    let s = io("http://localhost:8000/");
+    setSocket(s);
+    return () => {
+      s.disconnect();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (socket == null) return;
+    setInterval(() => socket.emit("getAllRooms"), 2000);
+    return () => clearInterval();
+  }, [socket]);
+
+  useEffect(() => {
+    if (socket == null) return;
+
+    socket.on("getAllRooms", (room) => {
+      console.log(room);
+      setRooms(room);
+    });
+  }, [socket, setRooms]);
+
   return (
     <>
+      <AlertDialog
+        motionPreset="slideInBottom"
+        leastDestructiveRef={cancelRef}
+        // onClose={() => setIsAlertOpen(false)}
+        isOpen={isAlertOpen}
+        isCentered
+      >
+        <AlertDialogOverlay />
+        <AlertDialogContent>
+          <AlertDialogHeader> Enter Username:</AlertDialogHeader>
+          <AlertDialogBody>
+            <form onSubmit={handleUsernameSubmit}>
+              <Input
+                isRequired={true}
+                maxW="sm"
+                placeholder="username"
+                value={username || ""}
+                onChange={(e) => setUsername(e.target.value)}
+              />
+              {alertDialogUser && (
+                <Alert status="warning" w="sm" marginX="1.5" marginY="2">
+                  <AlertIcon /> Username is required
+                </Alert>
+              )}
+            </form>
+          </AlertDialogBody>
+          <AlertDialogFooter>
+            <Button
+              isDisabled={!username ? true : false}
+              onClick={(e) => {
+                handleUsernameSubmit(e);
+              }}
+              type="submit"
+            >
+              Submit
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
       <Container maxW="max" maxH="max">
         <Center>
           <Image
@@ -95,6 +180,8 @@ const Home = () => {
             </Center>
           </form>
         </Box>
+
+        {rooms && <Rooms rooms={rooms} />}
       </Container>
     </>
   );

@@ -1,9 +1,9 @@
-import React, { useGlobal } from "reactn";
+import React from "reactn";
 import { Flex, useColorMode } from "@chakra-ui/react";
 
-const Messages = () => {
-  const [messages, setMessages] = useGlobal("messages");
-  const { colorMode, toggleColorMode } = useColorMode();
+const Messages = ({ messages }) => {
+  // const [messages, setMessages] = useGlobal("messages");
+  const { colorMode } = useColorMode();
 
   return (
     <Flex

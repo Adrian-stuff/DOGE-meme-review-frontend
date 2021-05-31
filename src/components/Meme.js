@@ -1,4 +1,4 @@
-import React, { useGlobal } from "reactn";
+import React from "reactn";
 import {
   Box,
   Container,
@@ -12,12 +12,9 @@ import {
   useColorMode,
 } from "@chakra-ui/react";
 const Meme = ({ data, media, onOpen }) => {
-  const [roomID] = useGlobal("roomID");
-  const [username] = useGlobal("username");
-  const { colorMode, toggleColorMode } = useColorMode();
+  const { colorMode } = useColorMode();
 
-  if (data === undefined || null) return <Heading> Loading...</Heading>;
-  return data.subreddit ? (
+  return data ? (
     <Container maxW="lg" borderWidth="1px" borderRadius="lg" padding="0">
       <Grid templateColumns="40px auto">
         <Flex

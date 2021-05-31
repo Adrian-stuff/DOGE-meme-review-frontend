@@ -5,7 +5,8 @@ const globalState = () => {
     roomId: "",
     username: localStorage.getItem("username") || undefined,
     messages: [],
-    socket: null,
+    rooms: [],
+    // socket: null,
   });
 };
 export default globalState;

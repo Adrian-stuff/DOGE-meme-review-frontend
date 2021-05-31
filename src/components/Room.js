@@ -1,5 +1,5 @@
 import React, { useGlobal, useEffect, useState } from "reactn";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, Redirect } from "react-router-dom";
 import Messages from "./Messages";
 import MessageInput from "./MessageInput";
 import { io } from "socket.io-client";
@@ -22,29 +22,27 @@ import {
   DrawerContent,
   DrawerBody,
   DrawerHeader,
-  useColorMode,
-  Image,
 } from "@chakra-ui/react";
 import DarkModeButton from "./DarkModeButton";
 const Room = () => {
   const [username] = useGlobal("username");
   const [connecting, setConnecting] = useState(true);
-  const [socket, setSocket] = useGlobal("socket");
-  const [data, setData] = useState({});
-  const [subreddit, setSubreddit] = useState(
-    "" || localStorage.getItem("subreddit")
-  );
+  const [socket, setSocket] = useState(null);
+  const [data, setData] = useState();
+  const [subreddit, setSubreddit] = useState("");
   const [messages, setMessages] = useGlobal("messages");
   let newArr = [];
   const { roomID } = useParams();
   const [isLargerThan767] = useMediaQuery("(max-width: 764px)");
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const { colorMode, toggleColorMode } = useColorMode();
 
   useEffect(() => {
-    const s = io("http://localhost:8000/");
+    let s = io("http://localhost:8000/");
     setSocket(s);
-    return () => s.disconnect();
+    return () => {
+      setMessages([]);
+      s.disconnect();
+    };
   }, []);
 
   useEffect(() => {
@@ -61,9 +59,10 @@ const Room = () => {
 
   useEffect(() => {
     if (socket == null) return;
-    socket.on("reqMeme", (data) => {
-      console.log(data);
-      setData(data);
+    socket.on("reqMeme", (datas) => {
+      console.log(datas);
+      setSubreddit(datas !== undefined ? datas.subreddit : "");
+      setData(datas);
     });
     socket.on("message", (req) => {
       newArr.push(req);
@@ -77,13 +76,13 @@ const Room = () => {
     return () => {
       socket.off("userJoined");
     };
-  }, [socket]);
+  }, [socket, setMessages]);
 
   function reqMeme(e) {
     e.preventDefault();
-    localStorage.setItem("subreddit", subreddit);
     socket.emit("reqMeme", subreddit);
   }
+  if (username === undefined || "") return <Redirect to="/" />;
 
   return connecting ? (
     <Center marginY="10">
@@ -122,7 +121,7 @@ const Room = () => {
               onClick={reqMeme}
               type="submit"
             >
-              Set subreddit
+              {data == null ? "Set subreddit" : "Request Meme"}
             </Button>
           </HStack>
           {!isLargerThan767 && (
@@ -145,15 +144,17 @@ const Room = () => {
             <DrawerContent>
               <DrawerCloseButton />
               <DrawerHeader fontSize="x-large">Chat</DrawerHeader>
+              <DarkModeButton margin="2" variant="ghost" size="md" />
+
               <DrawerBody>
-                <Messages />
+                <Messages messages={messages} />
                 <MessageInput socket={socket} />
               </DrawerBody>
             </DrawerContent>
           </Drawer>
         ) : (
           <Box maxW="sm" borderWidth="1px" borderRadius="lg" overflow="hidden">
-            <Messages />
+            <Messages messages={messages} />
             <MessageInput socket={socket} />
           </Box>
         )}

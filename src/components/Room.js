@@ -38,6 +38,7 @@ const Room = () => {
 
   useEffect(() => {
     let s = io("https://doge-meme-server.herokuapp.com/");
+    // let s = io("http://localhost:8000/");
     setSocket(s);
     return () => {
       setMessages([]);
@@ -111,7 +112,7 @@ const Room = () => {
               onChange={(e) => setSubreddit(e.target.value)}
               placeholder="Subreddit"
               size="sm"
-              width="xs"
+              width="200px"
               margin="1.5"
             />
             <Button

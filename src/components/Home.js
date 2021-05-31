@@ -17,6 +17,7 @@ import {
   AlertDialogOverlay,
   AlertDialogContent,
   AlertDialogHeader,
+  Divider,
   AlertDialogFooter,
   AlertDialogBody,
 } from "@chakra-ui/react";
@@ -140,8 +141,13 @@ const Home = () => {
           textAlign="center"
         >
           <Heading textAlign="center" marginY="2">
-            Enter room
+            Join Room
           </Heading>
+          <Divider marginY="2" />
+          <Heading textAlign="center" marginY="2">
+            Create Room
+          </Heading>
+
           <form onSubmit={handleSubmit}>
             <Input
               isRequired={true}

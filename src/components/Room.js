@@ -37,7 +37,7 @@ const Room = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   useEffect(() => {
-    let s = io("http://localhost:8000/");
+    let s = io("https://doge-meme-server.herokuapp.com/");
     setSocket(s);
     return () => {
       setMessages([]);

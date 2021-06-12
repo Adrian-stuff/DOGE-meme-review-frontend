@@ -37,8 +37,8 @@ const Room = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   useEffect(() => {
-    let s = io("https://doge-meme-server.herokuapp.com/");
-    // let s = io("http://localhost:8000/");
+    // let s = io("https://doge-meme-server.herokuapp.com/");
+    let s = io("http://localhost:8000/");
     setSocket(s);
     return () => {
       setMessages([]);
@@ -107,14 +107,16 @@ const Room = () => {
             </Link>
           )}
           <HStack>
-            <Input
-              value={subreddit || ""}
-              onChange={(e) => setSubreddit(e.target.value)}
-              placeholder="Subreddit"
-              size="sm"
-              width="200px"
-              margin="1.5"
-            />
+            <form onSubmit={reqMeme}>
+              <Input
+                value={subreddit || ""}
+                onChange={(e) => setSubreddit(e.target.value)}
+                placeholder="Subreddit"
+                size="sm"
+                width="200px"
+                margin="1.5"
+              />
+            </form>
             <Button
               position=""
               size="sm"

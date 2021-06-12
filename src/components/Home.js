@@ -57,7 +57,9 @@ const Home = () => {
     history.push(`/rooms/${room}`);
   }
   useEffect(() => {
-    let s = io("https://doge-meme-server.herokuapp.com/");
+    // let s = io("https://doge-meme-server.herokuapp.com/");
+    let s = io("http://localhost:8000/");
+
     setSocket(s);
     return () => {
       s.disconnect();
